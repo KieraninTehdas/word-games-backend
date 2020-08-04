@@ -9,6 +9,11 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use((req, res, next) => {
+  res.contentType("application/json");
+  next();
+});
+
 app.get("/cats", (req, res) => {
   console.log("Hit");
   db.findCat(req.query.name).then((result) => {
