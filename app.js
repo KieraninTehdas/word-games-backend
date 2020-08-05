@@ -1,12 +1,8 @@
+require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-
 const wordRouter = require("./routes/wordRoutes");
-
-// TODO: Use .env for config
-
-const PORT = 8000;
 
 const app = express();
 app.use(bodyParser.json());
@@ -17,7 +13,7 @@ app.use((req, res, next) => {
   next();
 });
 
-mongoose.connect("mongodb://localhost/test", {
+mongoose.connect(`mongodb://${process.env.DB_HOST}/test`, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -25,9 +21,11 @@ mongoose.connect("mongodb://localhost/test", {
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "Connection error:"));
 db.once("open", () => {
-  console.log("We're connected!");
+  console.log("Connected to MongoDb");
 });
 
 app.use("/words", wordRouter);
 
-app.listen(PORT, () => console.log(`Express is listening at ${PORT}`));
+app.listen(process.env.APP_PORT, () =>
+  console.log(`Express is listening at ${process.env.APP_PORT}`)
+);
