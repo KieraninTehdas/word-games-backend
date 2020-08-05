@@ -1,7 +1,10 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const db = require("./database");
+const mongoose = require("mongoose");
+
 const wordRouter = require("./routes/wordRoutes");
+
+// TODO: Use .env for config
 
 const PORT = 8000;
 
@@ -14,27 +17,15 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/cats", (req, res) => {
-  console.log("Hit");
-  db.findCat(req.query.name).then((result) => {
-    res.status(200);
-    res.setHeader("Content-Type", "application/json");
-
-    res.end(JSON.stringify(result));
-  });
+mongoose.connect("mongodb://localhost/test", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
 
-app.post("/cats", (req, res) => {
-  if (req.body.name == null) {
-    res.status(400);
-    res.end();
-    return;
-  }
-
-  db.saveCat(req.body.name);
-
-  res.status(200);
-  res.end();
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "Connection error:"));
+db.once("open", () => {
+  console.log("We're connected!");
 });
 
 app.use("/words", wordRouter);
